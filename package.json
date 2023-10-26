@@ -12,9 +12,12 @@
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
 		"test:integration": "playwright test",
-		"test:unit": "vitest"
+		"test:unit": "vitest",
+		"wrangler:deploy": "wrangler deploy",
+		"wrangler:dev": "wrangler dev"
 	},
 	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20231025.0",
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.20.4",
@@ -30,7 +33,8 @@
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
 		"vite": "^4.4.2",
-		"vitest": "^0.32.2"
+		"vitest": "^0.32.2",
+		"wrangler": "^3.0.0"
 	},
 	"type": "module"
 }
