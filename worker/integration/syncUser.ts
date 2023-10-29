@@ -11,8 +11,6 @@ export async function syncUser(env: Env, request: Request) {
 		.bind(providerAccountId)
 		.first<UserRow>();
 
-	console.log({ access_token, refresh_token, expires_at, providerAccountId, email, name });
-
 	const gcalNotificationChannelId =
 		existingUser?.google_calendar_notification_channel_id ?? generateId();
 	let homeLocation = existingUser?.home_location;
