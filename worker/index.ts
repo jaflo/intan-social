@@ -1,32 +1,52 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { ExportedHandler } from "@cloudflare/workers-types/experimental";
+import { Env } from "./types";
+import { syncUser } from "./integration/syncUser";
+import { GCAL_WEBHOOK_PATH, handleWebhook, triggerCalendarSync } from "./integration/gcalWebhook";
 
-export interface Env {
-	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-	// MY_KV_NAMESPACE: KVNamespace;
-	//
-	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-	// MY_DURABLE_OBJECT: DurableObjectNamespace;
-	//
-	// Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-	// MY_BUCKET: R2Bucket;
-	//
-	// Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
-	// MY_SERVICE: Fetcher;
-	//
-	// Example binding to a Queue. Learn more at https://developers.cloudflare.com/queues/javascript-apis/
-	// MY_QUEUE: Queue;
-}
+const handler: ExportedHandler<Env> = {
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore Response here does not match Response from CF
+	async fetch(cfRequest, env) {
+		try {
+			const request = cfRequest as unknown as Request;
+			const url = new URL(request.url);
+			const path = url.pathname;
 
-export default {
-	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		return new Response('Hello World!');
-	},
+			if (path === "/sync-user") {
+				// when a user signs in/up
+				return syncUser(env, request);
+			} else if (path === GCAL_WEBHOOK_PATH) {
+				// Google notifying of changes
+				return handleWebhook(env, request);
+			} else if (path === "/sync-calendar") {
+				// manual calendar sync
+				return triggerCalendarSync(env, request);
+			} else if (path === "/users") {
+				const { results } = await env.DB.prepare("SELECT * FROM users").all();
+				return Response.json({
+					success: true,
+					data: results
+				});
+			} else if (path === "/transitions") {
+				const { results } = await env.DB.prepare("SELECT * FROM transitions").all();
+				return Response.json({
+					success: true,
+					data: results
+				});
+			} else {
+				return Response.json({
+					success: true,
+					data: "Hello World!"
+				});
+			}
+		} catch (error) {
+			console.error(error);
+			return Response.json({
+				success: false,
+				details: error.toString()
+			});
+		}
+	}
 };
+
+export default handler;
