@@ -46,9 +46,9 @@ export async function getGoogleAccessToken(env: Env, googleUserId: string) {
 				SET
 					google_access_token = ?,
 					google_token_expires_at = ?,
-					google_refresh_token = ?
-				WHERE user_incrementing_id = ?
-			`
+					google_refresh_token = ?,
+					updated_at = DATETIME('now')
+				WHERE user_incrementing_id = ?`
 		)
 			.bind(
 				tokens.access_token,

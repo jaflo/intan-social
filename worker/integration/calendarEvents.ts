@@ -47,7 +47,7 @@ export async function storeCalendarEvents(
 
 	// get all future transitions
 	const transitionsQuery = await DB.prepare(
-		"SELECT * FROM transitions WHERE user_id = ? AND time_start >= DATE('now')"
+		"SELECT * FROM transitions WHERE user_id = ? AND time_start >= DATETIME('now')"
 	)
 		.bind(user_incrementing_id)
 		.all<TransitionRow>();

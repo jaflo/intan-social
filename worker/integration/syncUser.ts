@@ -47,7 +47,8 @@ export async function syncUser(env: Env, request: Request) {
 				display_name = ?6,
 				user_id = ?7,
 				google_calendar_notification_channel_id = ?8,
-				home_location = ?9
+				home_location = ?9,
+				updated_at = DATETIME('now')
 			WHERE google_user_id = ?1`
 		: `INSERT INTO users (
 				google_user_id,
