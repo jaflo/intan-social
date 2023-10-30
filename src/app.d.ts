@@ -6,11 +6,11 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			getSession: Promise<SessionData | null>;
+			getSession: () => Promise<SessionData | null>;
 			needsToReauth?: boolean;
 		}
 		interface PageData {
-			session: SessionData;
+			session: SessionData | null;
 		}
 		// interface Platform {}
 	}

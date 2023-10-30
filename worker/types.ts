@@ -6,6 +6,7 @@ export interface Env {
 	// secrets (see .dev.vars)
 	GOOGLE_CLIENT_ID: string;
 	GOOGLE_CLIENT_SECRET: string;
+	SHARED_SERVICE_SECRET: string;
 }
 
 // {
@@ -31,7 +32,7 @@ export interface CalendarEvent {
 	created: string;
 	updated: string;
 	summary: string;
-	location: string;
+	location?: string;
 	end: {
 		dateTime: string;
 		timeZone: string;
@@ -63,6 +64,24 @@ export interface UserRow {
 	google_token_expires_at?: number; // seconds
 	google_refresh_token?: string;
 	google_calendar_notification_channel_id?: string;
-	created_at: Date;
-	updated_at: Date;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface GroupRow {
+	group_id: number;
+	owner_user_id: number;
+	share_id: string;
+	title: string;
+	match_condition: string | "home"; // airport code or 'home'
+	created_at: string;
+	updated_at: string;
+}
+
+export interface GroupMemberRow {
+	group_member_id: number;
+	group_id: number;
+	user_id: string;
+	created_at: string;
+	updated_at: string;
 }

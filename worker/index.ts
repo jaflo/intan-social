@@ -2,19 +2,88 @@ import { ExportedHandler } from "@cloudflare/workers-types/experimental";
 import { Env } from "./types";
 import { syncUser } from "./integration/syncUser";
 import { GCAL_WEBHOOK_PATH, handleWebhook, triggerCalendarSync } from "./integration/gcalWebhook";
+import { handleGroupRequest } from "./groups/handler";
 
 const handler: ExportedHandler<Env> = {
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore Response here does not match Response from CF
-	async fetch(request, env) {
-		return handle(request as unknown as Request, env).catch((error) =>
-			Response.json({
-				success: false,
-				details: error.toString()
-			})
-		);
+	async fetch(r, env) {
+		const request = r as unknown as Request;
+		// TODO: re-enable
+		// if (!request.headers.get("Signature") || !request.headers.get("Signature-Expiration")) {
+		// 	return Response.json(
+		// 		{
+		// 			success: false,
+		// 			details: "Missing signature"
+		// 		},
+		// 		{ status: 403 }
+		// 	);
+		// }
+
+		// const validSignature = await verify(request, env);
+		// if (!validSignature) {
+		// 	return Response.json(
+		// 		{
+		// 			success: false,
+		// 			details: "Invalid signature"
+		// 		},
+		// 		{ status: 401 }
+		// 	);
+		// }
+
+		return handle(request, env);
+		// .catch((error) =>
+		// 	Response.json({
+		// 		success: false,
+		// 		details: error.toString()
+		// 	})
+		// );
 	}
 };
+
+function byteStringToUint8Array(byteString: string) {
+	const ui = new Uint8Array(byteString.length);
+	for (let i = 0; i < byteString.length; ++i) {
+		ui[i] = byteString.charCodeAt(i);
+	}
+	return ui;
+}
+
+async function verify(request: Request, env: Env): Promise<boolean> {
+	const url = new URL(request.url);
+
+	const encoder = new TextEncoder();
+	const secretKeyData = encoder.encode(env.SHARED_SERVICE_SECRET);
+	const key = await crypto.subtle.importKey(
+		"raw",
+		secretKeyData,
+		{ name: "HMAC", hash: "SHA-256" },
+		false,
+		["verify"]
+	);
+
+	const expiry = Number(request.headers.get("Signature-Expiration"));
+	const dataToAuthenticate = `${url.pathname}@${expiry}`;
+
+	const receivedMacBase64 = request.headers.get("Signature")!;
+	const receivedMac = byteStringToUint8Array(atob(receivedMacBase64));
+
+	const verified = await crypto.subtle.verify(
+		"HMAC",
+		key,
+		receivedMac,
+		encoder.encode(dataToAuthenticate)
+	);
+
+	if (
+		!verified || // invalid MAC
+		Date.now() > expiry // signature expired
+	) {
+		return false;
+	}
+
+	return true;
+}
 
 async function handle(request: Request, env: Env) {
 	const url = new URL(request.url);
@@ -29,6 +98,9 @@ async function handle(request: Request, env: Env) {
 	} else if (path === "/sync-calendar") {
 		// manual calendar sync
 		return triggerCalendarSync(env, request);
+	} else if (path.startsWith("/group")) {
+		// group related requests
+		return handleGroupRequest(env, request);
 	} else if (path === "/users") {
 		const { results } = await env.DB.prepare("SELECT * FROM users").all();
 		return Response.json({

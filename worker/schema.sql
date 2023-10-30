@@ -60,7 +60,7 @@ CREATE INDEX idx_transitions_to_location ON transitions (to_location);
 -- create groups table
 CREATE TABLE groups (
   group_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  owner_user_id TEXT NOT NULL,
+  owner_user_id INTEGER NOT NULL,
   share_id TEXT NOT NULL,
   title TEXT NOT NULL,
   match_condition TEXT NOT NULL,
@@ -74,7 +74,7 @@ CREATE INDEX idx_groups_share_id ON groups (share_id);
 CREATE TABLE group_members (
   group_member_id INTEGER PRIMARY KEY AUTOINCREMENT,
   group_id INTEGER NOT NULL,
-  user_id TEXT NOT NULL,
+  user_id INTEGER NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

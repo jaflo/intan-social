@@ -74,8 +74,8 @@ fs.createReadStream(csvFilePath)
 				code: IATA,
 				city: City,
 				country: Country,
-				lat: Number(Latitude).toFixed(3),
-				lon: Number(Longitude).toFixed(3)
+				lat: Number(Number(Latitude).toFixed(3)),
+				lon: Number(Number(Longitude).toFixed(3))
 			});
 		}
 	})

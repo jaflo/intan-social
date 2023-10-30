@@ -23,10 +23,12 @@ export function eventsToTransitions(originalEvents: CalendarEvent[]) {
 	// build a index for this user's locations
 	const locationToAirport: Record<string, string> = {};
 	events.forEach((event) => {
-		const lastIndex = event.location.lastIndexOf(" ");
-		const name = event.location.substring(0, lastIndex);
-		const code = event.location.substring(lastIndex + 1);
-		locationToAirport[name] = code;
+		if (event.location) {
+			const lastIndex = event.location.lastIndexOf(" ");
+			const name = event.location.substring(0, lastIndex);
+			const code = event.location.substring(lastIndex + 1);
+			locationToAirport[name] = code;
+		}
 	});
 
 	function createTransition(event: { id: string; end: Date; summary: string }): Transition {
