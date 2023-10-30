@@ -62,10 +62,10 @@ export async function handleWebhook(env: Env, request: Request) {
 }
 
 export async function triggerCalendarSync(env: Env, request: Request) {
-	const { google_user_id } = await request.json();
+	const { email } = await request.json();
 
-	const user = await env.DB.prepare("SELECT * FROM users WHERE google_user_id = ?")
-		.bind(google_user_id)
+	const user = await env.DB.prepare("SELECT * FROM users WHERE email_address = ?")
+		.bind(email)
 		.first<UserRow>();
 	if (!user || !user.google_user_id) {
 		return Response.json({

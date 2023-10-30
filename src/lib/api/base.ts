@@ -19,7 +19,7 @@ const key = await crypto.subtle.importKey(
 	["sign"]
 );
 
-export async function post<T>(path: string, data: unknown) {
+async function api<T>(path: string, method: string, data: unknown = {}) {
 	const expirationMs = 60000; // 1 minute
 	const expiry = Date.now() + expirationMs;
 
@@ -33,18 +33,35 @@ export async function post<T>(path: string, data: unknown) {
 			Signature: base64Mac,
 			"Signature-Expiration": String(expiry)
 		},
-		body: JSON.stringify(data),
-		method: "POST"
+		...(data ? { body: JSON.stringify(data) } : {}),
+		method
 	});
 	const response: T & {
 		success: boolean;
+		message?: string;
 	} = await result.json();
 
 	if (!result.ok) {
 		throw new Error("Request failed: " + result.statusText);
 	} else if (!response.success) {
 		console.error("Request didn't return successfully", response);
-		throw new Error("Request didn't return successfully");
+		throw new Error("Request didn't return successfully: " + response.message);
 	}
 	return response;
+}
+
+export async function POST<T>(path: string, data: unknown) {
+	return api<T>(path, "POST", data);
+}
+
+export async function GET<T>(path: string) {
+	return api<T>(path, "GET");
+}
+
+export async function DELETE<T>(path: string, data: unknown) {
+	return api<T>(path, "DELETE", data);
+}
+
+export async function PATCH<T>(path: string, data: unknown) {
+	return api<T>(path, "PATCH", data);
 }

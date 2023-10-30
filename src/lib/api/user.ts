@@ -1,4 +1,4 @@
-import { post } from "./base";
+import { POST } from "./base";
 
 export async function syncUser(params: {
 	access_token: string | undefined;
@@ -8,7 +8,28 @@ export async function syncUser(params: {
 	email: string | null | undefined;
 	name: string | null | undefined;
 }) {
-	return post<{
+	return POST<{
 		hasRefreshToken: boolean;
 	}>("/sync-user", params);
+}
+
+export async function syncCalendar(params: { email: string }) {
+	return POST("/sync-calendar", params);
+}
+
+export async function getSelfUser(params: { email: string }) {
+	return POST<{
+		data: {
+			user: {
+				name: string;
+				email: string;
+				place: string;
+			};
+			transitions: {
+				time: string;
+				place: string;
+				gcalId: string;
+			}[];
+		};
+	}>("/get-me", params);
 }

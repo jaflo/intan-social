@@ -5,7 +5,7 @@ export async function removeGroupMember(
 	DB: D1Database,
 	user: UserRow,
 	group: GroupRow,
-	payload: { userId?: string }
+	payload: { userId: string }
 ) {
 	const { group_id } = group;
 	const { userId } = payload;

@@ -7,6 +7,7 @@ export interface Env {
 	GOOGLE_CLIENT_ID: string;
 	GOOGLE_CLIENT_SECRET: string;
 	SHARED_SERVICE_SECRET: string;
+	IS_DEV: string;
 }
 
 // {

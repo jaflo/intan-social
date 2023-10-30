@@ -3,41 +3,47 @@ import { Env } from "./types";
 import { syncUser } from "./integration/syncUser";
 import { GCAL_WEBHOOK_PATH, handleWebhook, triggerCalendarSync } from "./integration/gcalWebhook";
 import { handleGroupRequest } from "./groups/handler";
+import { getUser } from "./user/getUser";
 
 const handler: ExportedHandler<Env> = {
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore Response here does not match Response from CF
 	async fetch(r, env) {
 		const request = r as unknown as Request;
-		// TODO: re-enable
-		// if (!request.headers.get("Signature") || !request.headers.get("Signature-Expiration")) {
-		// 	return Response.json(
-		// 		{
-		// 			success: false,
-		// 			details: "Missing signature"
-		// 		},
-		// 		{ status: 403 }
-		// 	);
-		// }
 
-		// const validSignature = await verify(request, env);
-		// if (!validSignature) {
-		// 	return Response.json(
-		// 		{
-		// 			success: false,
-		// 			details: "Invalid signature"
-		// 		},
-		// 		{ status: 401 }
-		// 	);
-		// }
+		if (env.IS_DEV) {
+			if (!request.headers.get("Signature") || !request.headers.get("Signature-Expiration")) {
+				return Response.json(
+					{
+						success: false,
+						details: "Missing signature"
+					},
+					{ status: 403 }
+				);
+			}
 
-		return handle(request, env);
-		// .catch((error) =>
-		// 	Response.json({
-		// 		success: false,
-		// 		details: error.toString()
-		// 	})
-		// );
+			const validSignature = await verify(request, env);
+			if (!validSignature) {
+				return Response.json(
+					{
+						success: false,
+						details: "Invalid signature"
+					},
+					{ status: 401 }
+				);
+			}
+		}
+
+		return handle(request, env).catch((error) => {
+			if (env.IS_DEV) {
+				throw error;
+			} else {
+				return Response.json({
+					success: false,
+					details: error.toString()
+				});
+			}
+		});
 	}
 };
 
@@ -89,7 +95,10 @@ async function handle(request: Request, env: Env) {
 	const url = new URL(request.url);
 	const path = url.pathname;
 
-	if (path === "/sync-user") {
+	if (path === "/get-me") {
+		// get the users data
+		return getUser(env, request);
+	} else if (path === "/sync-user") {
 		// when a user signs in/up
 		return syncUser(env, request);
 	} else if (path === GCAL_WEBHOOK_PATH) {

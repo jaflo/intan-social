@@ -13,8 +13,16 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 		.first();
 	if (!groupMember) {
 		return Response.json({
-			success: false,
-			message: "User is not a member of the group"
+			success: true,
+			data: {
+				isMember: false,
+				group: {
+					ownerUserId: group.owner_user_id,
+					title: group.title,
+					shareId: group.share_id,
+					matchCondition: group.match_condition
+				}
+			}
 		});
 	}
 
@@ -80,11 +88,17 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 	return Response.json({
 		success: true,
 		data: {
-			group,
+			isMember: true,
+			group: {
+				ownerUserId: group.owner_user_id,
+				title: group.title,
+				shareId: group.share_id,
+				matchCondition: group.match_condition
+			},
 			members: groupMembersQuery.results.map((user) => ({
 				id: user.user_incrementing_id,
 				name: user.display_name,
-				current: isAvailable(
+				currentAvailability: isAvailable(
 					group,
 					latestTransitionsQuery.results.find(
 						// find matching transition

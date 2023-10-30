@@ -6,7 +6,7 @@ import { deleteGroup } from "./deleteGroup";
 import { getGroupDetails } from "./getGroupDetails";
 import { updateGroupDetails } from "./updateGroupDetails";
 import { removeGroupMember } from "./removeGroupMember";
-import { resetShareCode } from "./resetShareCode";
+import { resetShareId } from "./resetShareId";
 
 export async function handleGroupRequest(env: Env, request: Request) {
 	const payload = await request.json();
@@ -26,7 +26,7 @@ export async function handleGroupRequest(env: Env, request: Request) {
 
 	if (request.method === "POST" && path === "/group") {
 		return createGroup(env.DB, user, payload);
-	} else if (request.method === "GET" && path === "/group") {
+	} else if (request.method === "POST" && path === "/group/list") {
 		return getMyGroups(env.DB, user);
 	} else if (path.startsWith("/group/")) {
 		const pieces = path.split("/");
@@ -47,14 +47,14 @@ export async function handleGroupRequest(env: Env, request: Request) {
 			return joinGroup(env.DB, user, group);
 		} else if (request.method === "DELETE" && !action) {
 			return deleteGroup(env.DB, user, group);
-		} else if (request.method === "GET" && !action) {
+		} else if (request.method === "POST" && !action) {
 			return getGroupDetails(env.DB, user, group);
 		} else if (request.method === "PATCH" && !action) {
 			return updateGroupDetails(env.DB, user, group, payload);
-		} else if (request.method === "POST" && action === "remove") {
+		} else if (request.method === "POST" && action === "remove-user") {
 			return removeGroupMember(env.DB, user, group, payload);
 		} else if (request.method === "POST" && action === "reset-share") {
-			return resetShareCode(env.DB, user, group);
+			return resetShareId(env.DB, user, group);
 		}
 	}
 }
