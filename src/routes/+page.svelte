@@ -6,7 +6,7 @@
 	import Calendar from "$lib/calendar/Calendar.svelte";
 	import type { UserTransition } from "$lib/types";
 
-	async function getMyTransitions() {
+	async function getMyData() {
 		const response = await fetch("/api/user");
 		const { data } = await response.json<{
 			success: boolean;
@@ -14,12 +14,12 @@
 				user: {
 					name: string;
 					email: string;
-					place: string | undefined;
+					place: string;
 				};
 				transitions: UserTransition[];
 			};
 		}>();
-		return data.transitions;
+		return data;
 	}
 </script>
 
@@ -30,10 +30,10 @@
 	<GroupList />
 
 	<h2>Schedule</h2>
-	{#await getMyTransitions()}
+	{#await getMyData()}
 		<p>Loading...</p>
-	{:then transitions}
-		<Calendar {transitions} />
+	{:then { user, transitions }}
+		<Calendar homeLocation={user.place} {transitions} />
 	{:catch error}
 		<p>{error.message}</p>
 	{/await}

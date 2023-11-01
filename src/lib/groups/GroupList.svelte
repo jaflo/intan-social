@@ -14,13 +14,17 @@
 {#await getGroups()}
 	<p>Loading...</p>
 {:then groups}
-	<ul>
-		{#each groups as group}
-			<li>
-				<a href="/group/{group.shareId}">{group.title}</a>
-			</li>
-		{/each}
-	</ul>
+	{#if groups.length > 0}
+		<ul>
+			{#each groups as group}
+				<li>
+					<a href="/group/{group.shareId}">{group.title}</a>
+				</li>
+			{/each}
+		</ul>
+	{:else}
+		None yet
+	{/if}
 {:catch error}
 	<p>{error.message}</p>
 {/await}
