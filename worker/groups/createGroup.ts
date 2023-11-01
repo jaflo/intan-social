@@ -33,9 +33,9 @@ export async function createGroup(
 	const createdGroupId = createdGroupQuery.meta.last_row_id;
 
 	const addMemberQuery = await DB.prepare(
-		"INSERT INTO group_members (group_id, user_id) VALUES (?, ?)"
+		"INSERT INTO group_members (group_id, user_id, user_incrementing_id) VALUES (?, ?, ?)"
 	)
-		.bind(createdGroupId, user.user_incrementing_id)
+		.bind(createdGroupId, user.user_id, user.user_incrementing_id)
 		.run<GroupMemberRow>();
 	if (!addMemberQuery.success) {
 		return Response.json({

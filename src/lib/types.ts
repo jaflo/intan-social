@@ -12,20 +12,27 @@ export interface GroupListItem {
 
 export interface GroupDataItem {
 	isMember: boolean;
+	isOwner: boolean;
 	group: {
-		ownerUserId: number;
+		ownerUserId?: string;
 		title: string;
 		shareId: string;
 		matchCondition: string;
 	};
 	members?: {
-		id: number;
+		id: string;
 		name: string;
 		currentAvailability: boolean;
 	}[];
 	transitions?: {
-		user: number;
+		user: string;
 		time: string;
 		available: boolean;
 	}[];
+}
+
+export interface UserTransition {
+	time: string;
+	place: string;
+	gcalId?: string;
 }

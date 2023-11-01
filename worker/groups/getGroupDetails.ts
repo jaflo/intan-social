@@ -16,8 +16,8 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 			success: true,
 			data: {
 				isMember: false,
+				isOwner: false,
 				group: {
-					ownerUserId: group.owner_user_id,
 					title: group.title,
 					shareId: group.share_id,
 					matchCondition: group.match_condition
@@ -28,7 +28,7 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 
 	// Get the details of all group members
 	const groupMembersQuery = await DB.prepare(
-		`SELECT user_incrementing_id, display_name, home_location FROM users
+		`SELECT user_incrementing_id, user_id, display_name, home_location FROM users
 			WHERE user_incrementing_id IN (
 				SELECT user_id FROM group_members WHERE group_id = ?
 			)`
@@ -36,6 +36,7 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 		.bind(group_id)
 		.all<{
 			user_incrementing_id: number;
+			user_id: string;
 			display_name: string;
 			home_location: string;
 		}>();
@@ -85,18 +86,24 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 		});
 	}
 
+	const userIncrementingIdToString = {};
+	for (const user of groupMembersQuery.results) {
+		userIncrementingIdToString[user.user_incrementing_id] = user.user_id;
+	}
+
 	return Response.json({
 		success: true,
 		data: {
 			isMember: true,
+			isOwner: group.owner_user_id === user.user_incrementing_id,
 			group: {
-				ownerUserId: group.owner_user_id,
+				ownerUserId: userIncrementingIdToString[group.owner_user_id],
 				title: group.title,
 				shareId: group.share_id,
 				matchCondition: group.match_condition
 			},
 			members: groupMembersQuery.results.map((user) => ({
-				id: user.user_incrementing_id,
+				id: userIncrementingIdToString[user.user_incrementing_id],
 				name: user.display_name,
 				currentAvailability: isAvailable(
 					group,
@@ -111,7 +118,10 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 				transitionQuery.results,
 				group,
 				groupMembersQuery.results
-			)
+			).map((transition) => ({
+				...transition,
+				user: userIncrementingIdToString[transition.user]
+			}))
 		}
 	});
 }

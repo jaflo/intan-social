@@ -1,6 +1,6 @@
 import { dev } from "$app/environment";
 
-export const SITE_NAME = "Intan";
+export const SITE_NAME = "intan";
 export function pageTitle(title?: string | string[]) {
 	let result = SITE_NAME;
 	if (dev) {
@@ -12,7 +12,7 @@ export function pageTitle(title?: string | string[]) {
 		}
 		title.reverse();
 		for (const part of title) {
-			result += " - " + part;
+			result += ": " + part;
 		}
 	}
 	return result;

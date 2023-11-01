@@ -27,7 +27,7 @@ export async function deleteGroup(email: string, shareId: string) {
 	return DELETE(`/group/${shareId}`, { email });
 }
 
-export async function getGroup(email: string, shareId: string) {
+export async function getGroup(email: string | undefined, shareId: string) {
 	return POST<{
 		data: GroupDataItem;
 	}>(`/group/${shareId}`, { email });

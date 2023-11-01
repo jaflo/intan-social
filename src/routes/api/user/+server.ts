@@ -13,9 +13,9 @@ export const GET: RequestHandler = async ({ locals }) => {
 		});
 	}
 
-	const response = await getSelfUser({ email });
+	const { data } = await getSelfUser({ email });
 	return json({
 		success: true,
-		data: response.data.user
+		data
 	});
 };

@@ -1,40 +1,39 @@
 <script lang="ts">
-	import { signIn, signOut } from "@auth/sveltekit/client";
+	import { signIn } from "@auth/sveltekit/client";
 	import { page } from "$app/stores";
 	import HeadTagContent from "$lib/components/HeadTagContent.svelte";
-	import type { GroupListItem } from "$lib/types";
+	import GroupList from "$lib/groups/GroupList.svelte";
+	import Calendar from "$lib/calendar/Calendar.svelte";
+	import type { UserTransition } from "$lib/types";
 
-	async function getGroups() {
-		const response = await fetch("/api/group");
+	async function getMyTransitions() {
+		const response = await fetch("/api/user");
 		const { data } = await response.json<{
 			success: boolean;
-			data: GroupListItem[];
+			data: {
+				user: {
+					name: string;
+					email: string;
+					place: string | undefined;
+				};
+				transitions: UserTransition[];
+			};
 		}>();
-		return data;
+		return data.transitions;
 	}
 </script>
 
 <HeadTagContent title="Home" />
 
-{#if $page.data.session}
-	Signed in as
-	<strong>{$page.data.session.user?.name ?? "User"}</strong>
-	<button on:click={() => signOut()} class="button">Sign out</button>
+{#if $page.data.session?.user}
+	<h2>Groups</h2>
+	<GroupList />
 
-	<pre>{JSON.stringify($page.data.session, null, 2)}</pre>
-
-	{#await getGroups()}
+	<h2>Schedule</h2>
+	{#await getMyTransitions()}
 		<p>Loading...</p>
-	{:then groups}
-		<p>Showing {groups.length} groups.</p>
-
-		<ul>
-			{#each groups as group}
-				<li>
-					<a href="/group/{group.shareId}">{group.title}</a>
-				</li>
-			{/each}
-		</ul>
+	{:then transitions}
+		<Calendar {transitions} />
 	{:catch error}
 		<p>{error.message}</p>
 	{/await}

@@ -5,14 +5,8 @@ import { deleteGroup, getGroup, updateGroup } from "$lib/api/group";
 export const GET: RequestHandler = async ({ locals, params }) => {
 	const session = await locals.getSession();
 	const email = session?.user?.email;
-	if (!email) {
-		return json({
-			success: false,
-			message: "Not logged in"
-		});
-	}
 
-	const { success, data } = await getGroup(email, params.shareId);
+	const { success, data } = await getGroup(email || undefined, params.shareId);
 	return json({
 		success,
 		data

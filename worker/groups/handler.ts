@@ -9,8 +9,38 @@ import { removeGroupMember } from "./removeGroupMember";
 import { resetShareId } from "./resetShareId";
 
 export async function handleGroupRequest(env: Env, request: Request) {
+	const url = new URL(request.url);
+	const path = url.pathname;
+	const pieces = path.split("/");
+	const groupShareId = pieces[2];
+	const action = pieces.length > 3 ? pieces[3] : null;
 	const payload = await request.json();
 	const { email } = payload;
+
+	if (!email && request.method === "POST" && !action) {
+		const group = await env.DB.prepare("SELECT * FROM groups WHERE share_id = ?")
+			.bind(groupShareId)
+			.first<GroupRow>();
+		if (!group) {
+			return Response.json({
+				success: false,
+				message: "Group not found"
+			});
+		}
+
+		return Response.json({
+			success: true,
+			data: {
+				isMember: false,
+				group: {
+					title: group.title,
+					shareId: group.share_id,
+					matchCondition: group.match_condition
+				}
+			}
+		});
+	}
+
 	const user = await env.DB.prepare("SELECT * FROM users WHERE email_address = ?")
 		.bind(email)
 		.first<UserRow>();
@@ -21,18 +51,11 @@ export async function handleGroupRequest(env: Env, request: Request) {
 		});
 	}
 
-	const url = new URL(request.url);
-	const path = url.pathname;
-
 	if (request.method === "POST" && path === "/group") {
 		return createGroup(env.DB, user, payload);
 	} else if (request.method === "POST" && path === "/group/list") {
 		return getMyGroups(env.DB, user);
 	} else if (path.startsWith("/group/")) {
-		const pieces = path.split("/");
-		const groupShareId = pieces[2];
-		const action = pieces.length > 3 ? pieces[3] : null;
-
 		const group = await env.DB.prepare("SELECT * FROM groups WHERE share_id = ?")
 			.bind(groupShareId)
 			.first<GroupRow>();
