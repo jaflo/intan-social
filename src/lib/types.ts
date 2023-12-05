@@ -23,12 +23,16 @@ export interface GroupDataItem {
 		id: string;
 		name: string;
 		currentAvailability: boolean;
+		isSelf: true | undefined;
+		isOwner: true | undefined;
 	}[];
-	transitions?: {
-		user: string;
-		time: string;
-		available: boolean;
-	}[];
+	transitions?: GroupMemberTransition[];
+}
+
+export interface GroupMemberTransition {
+	user: string;
+	time: string;
+	available: boolean;
 }
 
 export interface UserTransition {

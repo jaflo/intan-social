@@ -42,12 +42,13 @@ async function api<T>(path: string, method: string, data: unknown = {}) {
 	} = await result.json();
 
 	if (!result.ok) {
-		throw new Error("Request failed: " + result.statusText);
-	} else if (!response.success) {
-		console.error("Request didn't return successfully", response);
-		throw new Error("Request didn't return successfully: " + response.message);
+		return {
+			success: false,
+			message: "Request failed: " + result.statusText
+		};
+	} else {
+		return response;
 	}
-	return response;
 }
 
 export async function POST<T>(path: string, data: unknown) {

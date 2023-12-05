@@ -33,7 +33,7 @@
 		<div slot="b">
 			<UserStatusSlots>
 				<Spinner slot="loading" />
-				<a slot="loggedout" href="/login" class:active={path === "/login"}>Log in</a>
+				<a slot="loggedout" href="/profile" class:active={path === "/login"}>Log in</a>
 				<a
 					slot="loggedin"
 					href="/profile"

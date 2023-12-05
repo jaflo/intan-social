@@ -1,13 +1,9 @@
 <script lang="ts">
-	import GooView from "./GooView.svelte";
 	import type { GridItem } from "./shared";
 
 	export let year: number;
 	export let month: number;
 	export let dayShouldBeColor: (d: Date) => string = () => "";
-	export let showHeader = true;
-
-	const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 	let grid: (GridItem | null)[][] = [];
 
@@ -15,6 +11,7 @@
 		grid = [];
 
 		const d = new Date(year, month, 1, 12, 0, 0, 0);
+		const now = new Date();
 
 		// spaces for the first row
 		let row: (GridItem | null)[] = new Array(d.getDay()).fill(null);
@@ -22,7 +19,8 @@
 		while (d.getMonth() === month) {
 			row.push({
 				number: d.getDate(),
-				color: dayShouldBeColor(d)
+				color: dayShouldBeColor(d),
+				isPast: d.getTime() < now.getTime()
 			});
 
 			if (d.getDay() % 7 === 6) {
@@ -47,52 +45,40 @@
 	}
 </script>
 
-{new Date(year, month).toLocaleString("en-US", {
-	month: "long",
-	year: "numeric"
-})}
+<strong>
+	{new Date(year, month).toLocaleString("en-US", {
+		month: "long",
+		year: "numeric"
+	})}
+</strong>
 
-<div class="wrapper">
-	<div class="view">
-		<GooView {grid} />
-	</div>
-	<div class="interact">
-		<table>
-			{#if showHeader}
-				<tr>
-					{#each weekdays as day}
-						<td>{day}</td>
-					{/each}
-				</tr>
-			{/if}
-			{#each grid as row}
-				<tr>
-					{#each row as day}
-						{#if day}
-							<td>{day.number}</td>
-						{:else}
-							<td />
-						{/if}
-					{/each}
-				</tr>
+<table>
+	{#each grid as row}
+		<tr>
+			{#each row as day, i}
+				{#if day}
+					<td
+						style:background={day.color}
+						style:color={i === 0 || i === 6 ? "red" : undefined}
+						style:opacity={day.isPast ? 0.5 : 1}
+					>
+						<div>
+							<span>{day.number}</span>
+						</div>
+					</td>
+				{:else}
+					<td><div /></td>
+				{/if}
 			{/each}
-		</table>
-	</div>
-</div>
+		</tr>
+	{/each}
+</table>
 
 <style>
-	.wrapper {
-		position: relative;
-	}
-
-	.interact {
-		position: relative;
-		padding: 15px;
-	}
-
-	.view {
-		position: absolute;
-		bottom: 0;
+	strong {
+		display: block;
+		text-align: center;
+		padding: calc(100% / 7 / 2 - 1em) 0;
 	}
 
 	table {
@@ -101,11 +87,17 @@
 		table-layout: fixed;
 		border: 0;
 		text-align: center;
+		width: 100%;
 	}
 
 	td {
-		width: 60px;
-		height: 60px;
 		padding: 0;
+	}
+
+	td > div {
+		aspect-ratio: 1 / 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 </style>

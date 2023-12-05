@@ -11,14 +11,14 @@
 {#if $page.data.session?.user}
 	<h2>{$page.data.session.user.name ?? "Profile"}</h2>
 
-	<button on:click={() => signOut()} class="button">Sign out</button>
+	<button on:click={() => signOut()} class="button">Log out</button>
 
 	<pre>{JSON.stringify($page.data.session, null, 2)}</pre>
 {:else}
 	<h2>Profile</h2>
 
-	You are not signed in
-	<button on:click={() => signIn("google")}>Sign in with Google</button>
+	You are not logged in
+	<button on:click={() => signIn("google")}>Log in with Google</button>
 	<button
 		on:click={() =>
 			signIn("google", undefined, {

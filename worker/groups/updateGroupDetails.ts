@@ -24,9 +24,12 @@ export async function updateGroupDetails(
 		});
 	}
 
-	let newMatchCondition = matchCondition || group.match_condition;
+	const newMatchCondition = matchCondition || group.match_condition;
 	if (!isValidAirportCode(newMatchCondition) && newMatchCondition !== "home") {
-		newMatchCondition = "home";
+		return Response.json({
+			success: false,
+			message: "Location isn't a valid airport code or home"
+		});
 	}
 
 	const updateQuery = await DB.prepare(

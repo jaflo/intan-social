@@ -36,8 +36,8 @@ export async function getGroup(email: string | undefined, shareId: string) {
 export async function updateGroup(
 	email: string,
 	shareId: string,
-	title: string,
-	matchCondition: string | "home"
+	title?: string,
+	matchCondition?: string | "home"
 ) {
 	return PATCH(`/group/${shareId}`, { email, title, matchCondition });
 }

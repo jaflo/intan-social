@@ -44,10 +44,10 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		title?: string;
 		place?: string;
 	}>();
-	if (!title || !place) {
+	if (!title && !place) {
 		return json({
 			success: false,
-			message: "Missing title or place"
+			message: "Missing title and place"
 		});
 	}
 

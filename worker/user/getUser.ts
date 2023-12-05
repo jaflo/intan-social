@@ -1,6 +1,6 @@
 import { TransitionRow, UserRow, Env } from "../types";
 
-export async function getUser(env: Env, request: Request) {
+export async function getUser(env: Env, request: Request): Promise<Response> {
 	const payload = await request.json();
 	const { email } = payload;
 	const user = await env.DB.prepare("SELECT * FROM users WHERE email_address = ?")
@@ -13,7 +13,18 @@ export async function getUser(env: Env, request: Request) {
 		});
 	}
 
-	const transitionsQuery = await env.DB.prepare("SELECT * FROM transitions WHERE user_id = ?")
+	// TODO: update this to be future transitions + the one right before if applicable
+	const transitionsQuery = await env.DB.prepare(
+		`SELECT * FROM transitions
+			WHERE user_id = ?
+			AND (
+				time_start > datetime('now')  -- in future or
+				OR time_start = (             -- the one right before
+					SELECT MAX(time_start) FROM transitions
+					WHERE user_id = transitions.user_id AND time_start <= datetime('now')
+				)
+			)`
+	)
 		.bind(user.user_incrementing_id)
 		.all<TransitionRow>();
 	if (!transitionsQuery.success) {

@@ -6,7 +6,7 @@ export async function getMyGroups(DB: D1Database, user: UserRow) {
 		`SELECT g.group_id, g.title, g.share_id, g.match_condition
 			FROM groups g
 			JOIN group_members gm ON g.group_id = gm.group_id
-			WHERE gm.user_id = ?`
+			WHERE gm.user_incrementing_id = ?`
 	)
 		.bind(user.user_incrementing_id)
 		.all<GroupRow>();

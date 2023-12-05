@@ -18,6 +18,7 @@ export async function handleGroupRequest(env: Env, request: Request) {
 	const { email } = payload;
 
 	if (!email && request.method === "POST" && !action) {
+		// logged out user viewing group details
 		const group = await env.DB.prepare("SELECT * FROM groups WHERE share_id = ?")
 			.bind(groupShareId)
 			.first<GroupRow>();

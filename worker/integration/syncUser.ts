@@ -38,6 +38,12 @@ export async function syncUser(env: Env, request: Request) {
 		homeLocation ??= getHomeLocation(events);
 	}
 
+	if (!homeLocation) {
+		// TODO: initialize default from user location or something
+		// homeLocation = getAirportCode(location);
+		homeLocation = "";
+	}
+
 	const query = existingUser
 		? `UPDATE users SET
 				google_access_token = ?2,

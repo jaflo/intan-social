@@ -7,7 +7,7 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 
 	// Check if the user is a member of the group
 	const groupMember = await DB.prepare(
-		`SELECT * FROM group_members WHERE group_id = ? AND user_id = ?`
+		`SELECT * FROM group_members WHERE group_id = ? AND user_incrementing_id = ?`
 	)
 		.bind(group_id, user.user_incrementing_id)
 		.first();
@@ -30,7 +30,7 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 	const groupMembersQuery = await DB.prepare(
 		`SELECT user_incrementing_id, user_id, display_name, home_location FROM users
 			WHERE user_incrementing_id IN (
-				SELECT user_id FROM group_members WHERE group_id = ?
+				SELECT user_incrementing_id FROM group_members WHERE group_id = ?
 			)`
 	)
 		.bind(group_id)
@@ -51,7 +51,7 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 	const transitionQuery = await DB.prepare(
 		`SELECT user_id, time_start, to_location FROM transitions
 			WHERE user_id IN (
-				SELECT user_id FROM group_members WHERE group_id = ?
+				SELECT user_incrementing_id FROM group_members WHERE group_id = ?
 			)
 			AND time_start >= datetime('now')
 			AND time_start <= datetime('now', '+1 year')`
@@ -69,7 +69,7 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 	const latestTransitionsQuery = await DB.prepare(
 		`SELECT user_id, time_start, to_location FROM transitions
 			WHERE user_id IN (
-				SELECT user_id FROM group_members WHERE group_id = ?
+				SELECT user_incrementing_id FROM group_members WHERE group_id = ?
 			)
 			AND time_start <= datetime('now')
 			AND time_start = (
@@ -102,17 +102,20 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 				shareId: group.share_id,
 				matchCondition: group.match_condition
 			},
-			members: groupMembersQuery.results.map((user) => ({
-				id: userIncrementingIdToString[user.user_incrementing_id],
-				name: user.display_name,
+			members: groupMembersQuery.results.map((member) => ({
+				id: userIncrementingIdToString[member.user_incrementing_id],
+				name: member.display_name,
 				currentAvailability: isAvailable(
 					group,
 					latestTransitionsQuery.results.find(
 						// find matching transition
-						(t) => t.user_id === user.user_incrementing_id
-					)?.to_location || user.home_location,
-					user.home_location
-				)
+						(t) => t.user_id === member.user_incrementing_id
+					)?.to_location || member.home_location,
+					member.home_location
+				),
+				isSelf:
+					member.user_incrementing_id === user.user_incrementing_id ? true : undefined,
+				isOwner: member.user_incrementing_id === group.owner_user_id ? true : undefined
 			})),
 			transitions: convertTransitions(
 				transitionQuery.results,

@@ -28,21 +28,16 @@ export async function removeGroupMember(
 			message: "User not found in group"
 		});
 	}
+	const isOwner = user_incrementing_id === group.owner_user_id;
 
-	if (
-		user_incrementing_id !== group.owner_user_id ||
-		user_incrementing_id !== user.user_incrementing_id
-	) {
+	if (!isOwner && user_incrementing_id !== user.user_incrementing_id) {
 		return Response.json({
 			success: false,
-			message: "User cannot remove member"
+			message: "Non-owner cannot remove other members"
 		});
 	}
 
-	if (
-		user_incrementing_id === group.owner_user_id &&
-		user_incrementing_id === user.user_incrementing_id
-	) {
+	if (isOwner && user_incrementing_id === user.user_incrementing_id) {
 		return Response.json({
 			success: false,
 			message: "Owner cannot remove themselves"

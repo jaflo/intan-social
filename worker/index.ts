@@ -11,7 +11,7 @@ const handler: ExportedHandler<Env> = {
 	async fetch(r, env) {
 		const request = r as unknown as Request;
 
-		if (env.IS_DEV) {
+		if (!env.IS_DEV) {
 			if (!request.headers.get("Signature") || !request.headers.get("Signature-Expiration")) {
 				return Response.json(
 					{
@@ -110,24 +110,20 @@ async function handle(request: Request, env: Env) {
 	} else if (path.startsWith("/group")) {
 		// group related requests
 		return handleGroupRequest(env, request);
-	} else if (path === "/users") {
-		const { results } = await env.DB.prepare("SELECT * FROM users").all();
-		return Response.json({
-			success: true,
-			data: results
-		});
-	} else if (path === "/transitions") {
-		const { results } = await env.DB.prepare("SELECT * FROM transitions").all();
-		return Response.json({
-			success: true,
-			data: results
-		});
-	} else {
-		return Response.json({
-			success: true,
-			data: "Hello World!"
-		});
+	} else if (env.IS_DEV) {
+		if (path.startsWith("/table/")) {
+			const tableName = path.replace("/table/", "");
+			const { results } = await env.DB.prepare("SELECT * FROM " + tableName).all();
+			return Response.json({
+				success: true,
+				data: results
+			});
+		}
 	}
+
+	return Response.json({
+		success: false
+	});
 }
 
 export default handler;

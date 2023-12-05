@@ -69,9 +69,10 @@ fs.createReadStream(csvFilePath)
 		if (subset.City) placeList.add(subset.City + ", " + subset.Country);
 		placeList.add(subset.Country);
 		if (subset.IATA) {
-			const { City, Country, IATA, Latitude, Longitude } = subset;
+			const { Name, City, Country, IATA, Latitude, Longitude } = subset;
 			airports.push({
 				code: IATA,
+				name: Name,
 				city: City,
 				country: Country,
 				lat: Number(Number(Latitude).toFixed(3)),
