@@ -49,6 +49,7 @@
 
 <main>
 	{#if preventRender}
+		<!-- TODO: show information about reauth and to allow calendar access -->
 		<SpinnerWithText>Redirecting...</SpinnerWithText>
 	{:else}
 		<slot />

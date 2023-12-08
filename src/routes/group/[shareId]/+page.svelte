@@ -23,18 +23,13 @@
 
 	$: pages = [
 		{
-			label: $group?.group.matchCondition
-				? `Availability (${$group.group.matchCondition})`
-				: "Availability",
+			label: "Availability",
+			sideLabel: $group?.group.matchCondition,
 			page: Availability
 		},
 		{
-			label:
-				$group?.members === undefined
-					? "Members"
-					: $group.members?.length === 1
-					? "Invite Members"
-					: `Members (${$group.members?.length})`,
+			label: $group?.members?.length === 1 ? "Invite Members" : "Members",
+			sideLabel: $group?.members?.length,
 			page: Members
 		},
 		{
@@ -77,14 +72,19 @@
 	{/if}
 
 	<div class="tabs">
-		{#each pages as { label }, i}
+		{#each pages as { label, sideLabel }, i}
 			<button
 				on:click={() => (currentPage = i)}
 				class="simple tab"
 				class:bolded={i === currentPage}
 				class:selected={i === currentPage}
 			>
-				<div>{label}</div>
+				<div>
+					{label}
+					{#if sideLabel}
+						<small>{sideLabel}</small>
+					{/if}
+				</div>
 			</button>
 		{/each}
 	</div>
@@ -108,6 +108,18 @@
 	.tabs button div {
 		padding-bottom: var(--half-pad);
 		border-bottom: 2px solid transparent;
+		display: flex;
+		align-items: center;
+	}
+
+	.tabs button div small {
+		color: var(--background-color);
+		background: var(--foreground-color);
+		line-height: 1;
+		border-radius: 9em;
+		padding: 0.2em 0.4em;
+		margin-left: var(--half-pad);
+		font-weight: normal;
 	}
 
 	.tabs button.selected div {

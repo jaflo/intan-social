@@ -7,9 +7,12 @@ export async function getCalendarEvents(
 	emailAddress: string,
 	accessToken: string
 ): Promise<CalendarEvent[]> {
+	const aMonthAgo = new Date();
+	aMonthAgo.setMonth(aMonthAgo.getMonth() - 1);
+
 	const queryString = new URLSearchParams({
 		calendarId: "primary",
-		timeMin: new Date().toISOString(),
+		timeMin: aMonthAgo.toISOString(),
 		maxResults: String(2500),
 		q: "Flight to",
 		singleEvents: "true",

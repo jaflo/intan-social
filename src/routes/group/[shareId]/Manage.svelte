@@ -14,9 +14,9 @@
 
 	$: list = [
 		{
-			label: "Change location",
+			label: "Change location from " + $group?.group.matchCondition,
 			action: () => {
-				console.log("idk");
+				// TODO: implement
 			},
 			primaryIcon: IconMapPin,
 			shownIf: !!$group?.isOwner
@@ -77,12 +77,6 @@
 </script>
 
 {#if $group}
-	<p>
-		This group shows when everyone is {$group?.group.matchCondition === "home"
-			? "home"
-			: `near ${$group?.group.matchCondition}`}.
-	</p>
-
 	<ButtonList {list} />
 
 	{#if $group.isOwner}

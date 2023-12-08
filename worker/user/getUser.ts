@@ -13,7 +13,6 @@ export async function getUser(env: Env, request: Request): Promise<Response> {
 		});
 	}
 
-	// TODO: update this to be future transitions + the one right before if applicable
 	const transitionsQuery = await env.DB.prepare(
 		`SELECT * FROM transitions
 			WHERE user_id = ?

@@ -3,13 +3,7 @@
 	import { page } from "$app/stores";
 	import HeadTagContent from "$lib/components/HeadTagContent.svelte";
 	import ButtonList from "$lib/components/ButtonList.svelte";
-	import {
-		IconBrandGoogle,
-		IconCalendar,
-		IconLogout,
-		IconMapPin,
-		IconReplace
-	} from "@tabler/icons-svelte";
+	import { IconBrandGoogle, IconLogout, IconMapPin, IconReplace } from "@tabler/icons-svelte";
 </script>
 
 <HeadTagContent title="Profile" />
@@ -20,30 +14,37 @@
 	<ButtonList
 		list={[
 			{
-				label: "Edit location",
+				label: "Change location",
 				action: () => {
 					// TODO: edit home location
 				},
 				primaryIcon: IconMapPin
 			},
-			{
-				label: "Re-sync calendar",
-				action: () => {
-					// TODO: sync calendar
-				},
-				primaryIcon: IconCalendar
-			},
+			// {
+			// 	label: "Re-sync calendar",
+			// 	action: () => {
+			// 		// TODO: sync calendar
+			// 	},
+			// 	primaryIcon: IconCalendar
+			// },
 			{
 				label: "Log out",
 				action: () => {
 					signOut();
 				},
 				primaryIcon: IconLogout
+			},
+			{
+				label: "Use a different account",
+				action: () => {
+					signIn("google", undefined, {
+						reauth: "yes"
+					});
+				},
+				primaryIcon: IconReplace
 			}
 		]}
 	/>
-
-	<pre>{JSON.stringify($page.data.session, null, 2)}</pre>
 {:else}
 	<h2>Profile</h2>
 
