@@ -1,133 +1,116 @@
 <script lang="ts">
 	import HeadTagContent from "$lib/components/HeadTagContent.svelte";
-	import type { GroupDataItem } from "$lib/types";
 	import { onMount } from "svelte";
 	import type { PageData } from "./$types";
-	import EditMatchCondition from "./EditMatchCondition.svelte";
-	import DeleteGroup from "./DeleteGroup.svelte";
+	import { group, loadGroup } from "./shared";
+	import Members from "./Members.svelte";
+	import Manage from "./Manage.svelte";
+	import Availability from "./Availability.svelte";
+	import SpinnerWithText from "$lib/components/SpinnerWithText.svelte";
+	import { joinGroup } from "./membership";
 	import { user } from "$lib/components/user/user";
 	import { signIn } from "@auth/sveltekit/client";
 
 	export let data: PageData;
 
-	let group: GroupDataItem | null = null;
-	onMount(loadGroup);
-	async function loadGroup() {
-		const response = await fetch(`/api/group/${data.shareId}`);
-		const { data: responseData } = await response.json<{
-			success: boolean;
-			data: GroupDataItem;
-		}>();
-		group = responseData;
-	}
+	onMount(() => {
+		loadGroup(data.shareId);
 
-	async function joinGroup() {
-		if (!$user) {
-			// TODO: if not logged in, log in, then redirect
-			signIn("google");
-			return;
+		return () => {
+			$group = undefined;
+		};
+	});
+
+	$: pages = [
+		{
+			label: $group?.group.matchCondition
+				? `Availability (${$group.group.matchCondition})`
+				: "Availability",
+			page: Availability
+		},
+		{
+			label:
+				$group?.members === undefined
+					? "Members"
+					: $group.members?.length === 1
+					? "Invite Members"
+					: `Members (${$group.members?.length})`,
+			page: Members
+		},
+		{
+			label: "Manage",
+			page: Manage
 		}
-		if (!group) return;
+	];
 
-		const response = await fetch(`/api/group/${data.shareId}/join`, {
-			method: "POST"
-		});
-		const { success, message } = await response.json<{
-			success: boolean;
-			message: string;
-		}>();
-		if (success) {
-			await loadGroup();
-		} else {
-			alert(message);
-		}
-	}
-
-	async function leaveGroup() {
-		// hacky but whatever
-		const myUserId = group?.members?.find((m) => m.isSelf)?.id;
-		if (!myUserId) return;
-		return removeMember(myUserId);
-	}
-
-	async function removeMember(userId: string) {
-		if (!group) return;
-
-		if (group.isOwner) {
-			// TODO: make prettier
-			alert("You own this group so you need to delete it to leave.");
-			return;
-		}
-
-		const response = await fetch(`/api/group/${data.shareId}/member/${userId}`, {
-			method: "DELETE"
-		});
-		const { success, message } = await response.json<{
-			success: boolean;
-			message: string;
-		}>();
-		if (success) {
-			await loadGroup();
-		} else {
-			alert(message);
-		}
-	}
+	let currentPage = 0;
 </script>
 
-<HeadTagContent title="Group" />
+<HeadTagContent title={$group?.group.title ?? "Group"} />
 
-{#if !group}
-	<p>Loading...</p>
-{:else}
-	<h2>{group.group.title}</h2>
-	Show when everyone is {group.group.matchCondition === "home"
-		? "home"
-		: `near ${group.group.matchCondition}`}
-	{#if group.isOwner}
-		<EditMatchCondition
-			shareId={data.shareId}
-			currentValue={group.group.matchCondition}
-			reloadGroup={loadGroup}
-		/>
-	{/if}
+{#if $group === undefined}
+	<SpinnerWithText>Loading...</SpinnerWithText>
+{:else if $group === null}
+	<h2>Not found</h2>
+{:else if !$group.isMember}
+	<h2>{$group.group.title}</h2>
 
-	{#if !group.isMember}
+	<p>
+		This group shows when everyone is {$group?.group.matchCondition === "home"
+			? "home"
+			: `near ${$group?.group.matchCondition}`}. Please join the group to view and share your
+		availability.
+	</p>
+
+	{#if !$user}
+		<p>You can log in through Google and all of your flights will be imported automatically!</p>
+		<button on:click={() => signIn("google")}>Log in with Google</button>
+	{:else}
 		<button on:click={joinGroup}>Join group</button>
-	{:else if !group.isOwner}
-		<button on:click={leaveGroup}>Leave group</button>
+	{/if}
+{:else}
+	<h2>{$group.group.title}</h2>
+
+	{#if $group.members?.length === 1}
+		<!-- TODO: invite members instruction banner -->
+		<p>Invite your friends by sending them this link</p>
 	{/if}
 
-	{#if group.isOwner}
-		<DeleteGroup shareId={data.shareId} reloadGroup={loadGroup} />
-		<!-- TODO: implement -->
-		<button on:click={leaveGroup}>Rename group</button>
-	{/if}
-
-	{#if group.members}
-		<h3>Members:</h3>
-		<ul>
-			{#each group.members as member}
-				<li>
-					{member.name}
-					{#if member.isOwner}(you){/if}
-					{#if member.isOwner}*{/if}
-					{#if group.isOwner}
-						<!-- TODO: implement -->
-						(kick)
-					{/if}
-				</li>
-			{/each}
-		</ul>
-	{/if}
-
-	{#if group.transitions}
-		<h3>Transitions:</h3>
-		<ul>
-			{#each group.transitions as transition}
-				<li>
-					{transition.time}: {transition.user} change to {transition.available}
-				</li>
-			{/each}
-		</ul>
-	{/if}
+	<div class="tabs">
+		{#each pages as { label }, i}
+			<button
+				on:click={() => (currentPage = i)}
+				class="simple tab"
+				class:bolded={i === currentPage}
+				class:selected={i === currentPage}
+			>
+				<div>{label}</div>
+			</button>
+		{/each}
+	</div>
+	{#each pages as { page }, i}
+		<div style:display={i === currentPage ? "block" : "none"}>
+			<svelte:component this={page} />
+		</div>
+	{/each}
 {/if}
+
+<style>
+	.tabs {
+		margin: calc(-1 * var(--half-pad)) 0 0 0;
+	}
+
+	.tabs button {
+		padding: var(--pad) var(--pad) var(--pad) 0;
+		border-bottom: 2px solid transparent;
+	}
+
+	.tabs button div {
+		padding-bottom: var(--half-pad);
+		border-bottom: 2px solid transparent;
+	}
+
+	.tabs button.selected div {
+		border-bottom-color: currentColor;
+	}
+</style>

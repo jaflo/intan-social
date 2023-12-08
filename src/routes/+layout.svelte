@@ -40,7 +40,7 @@
 					class:active={path === "/profile"}
 					title="Profile"
 				>
-					<Avatar name={$user?.email || ""} size={32} />
+					<Avatar name={$page.data.session?.userId || ""} size={32} />
 				</a>
 			</UserStatusSlots>
 		</div>
@@ -55,14 +55,11 @@
 	{/if}
 </main>
 
-<footer>&copy; 2023</footer>
-
 <style>
 	header,
-	main,
-	footer {
+	main {
 		max-width: 40em;
-		margin: 1em auto;
+		margin: var(--pad) auto;
 		padding: 0 var(--pad);
 	}
 

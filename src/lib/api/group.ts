@@ -47,5 +47,7 @@ export async function deleteGroupMember(email: string, shareId: string, userId: 
 }
 
 export async function resetShareCode(email: string, shareId: string) {
-	return POST(`/group/${shareId}/reset-share`, { email });
+	return POST<{
+		data: { shareId: string };
+	}>(`/group/${shareId}/reset-share`, { email });
 }

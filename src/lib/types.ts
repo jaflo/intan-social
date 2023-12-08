@@ -2,6 +2,7 @@ import type { Session } from "@auth/core/types";
 
 export type SessionData = Session & {
 	shouldReauth: boolean;
+	userId: string;
 };
 
 export interface GroupListItem {
@@ -22,7 +23,7 @@ export interface GroupDataItem {
 	members?: {
 		id: string;
 		name: string;
-		currentAvailability: boolean;
+		available: boolean;
 		isSelf: true | undefined;
 		isOwner: true | undefined;
 	}[];

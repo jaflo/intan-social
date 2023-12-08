@@ -1,18 +1,17 @@
 <script lang="ts">
 	import Spinner from "$lib/components/Spinner.svelte";
 	import ButtonAndModal from "$lib/components/modal/ButtonAndModal.svelte";
-
-	export let shareId: string;
-	export let currentValue: string;
-	export let reloadGroup: () => void;
+	import { group, reloadGroup } from "../shared";
 
 	let loading = false;
 	let updatedName = "";
 
 	async function saveName(closeModal: () => void) {
+		if (!$group) return;
+
 		loading = true;
 
-		const response = await fetch(`/api/group/${shareId}`, {
+		const response = await fetch(`/api/group/${$group.group.shareId}`, {
 			method: "PATCH",
 			body: JSON.stringify({
 				place: updatedName
@@ -33,7 +32,7 @@
 	}
 
 	function open(openModal: () => void) {
-		updatedName = currentValue || "";
+		updatedName = $group?.group.matchCondition || "";
 		openModal();
 	}
 </script>

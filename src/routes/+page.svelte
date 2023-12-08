@@ -28,7 +28,7 @@
 	<h2>Groups</h2>
 	<GroupList />
 
-	<h2>Schedule</h2>
+	<h2>My Travels</h2>
 	{#await getMyData()}
 		<p>Loading...</p>
 	{:then { user, transitions }}

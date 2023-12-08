@@ -3,7 +3,7 @@
 	import type { GroupMemberTransition } from "$lib/types";
 	import Calendar from "./Calendar.svelte";
 
-	export let currentAvailabilityPerUser: string[];
+	export let currentlyAvailableUsers: string[];
 	export let transitions: GroupMemberTransition[];
 
 	$: preparedTransitions = transitions
@@ -20,10 +20,11 @@
 				(p) =>
 					preparedTransitions
 						.filter((t) => t.user === p)
-						.findLast((t) => t.time.getTime() < date.getTime())?.available || true
+						.findLast((t) => t.time.getTime() < date.getTime())?.available ??
+					currentlyAvailableUsers.includes(p)
 			)
 			.filter((isAvailable) => isAvailable).length;
-		return `rgba(0,255,0,${availableCount / people.length})`;
+		return `rgba(89, 205, 144, ${availableCount / people.length})`;
 	}
 </script>
 

@@ -67,6 +67,7 @@ export async function syncUser(env: Env, request: Request) {
 				google_calendar_notification_channel_id,
 				home_location
 			) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`;
+	const visibleUserId = existingUser?.user_id ?? generateId();
 	const { success } = await env.DB.prepare(query)
 		.bind(
 			/* 1 */ providerAccountId,
@@ -75,7 +76,7 @@ export async function syncUser(env: Env, request: Request) {
 			/* 4 */ expires_at,
 			/* 5 */ email,
 			/* 6 */ name,
-			/* 7 */ existingUser?.user_id ?? generateId(),
+			/* 7 */ visibleUserId,
 			/* 8 */ gcalNotificationChannelId,
 			/* 9 */ homeLocation
 		)
@@ -99,6 +100,7 @@ export async function syncUser(env: Env, request: Request) {
 
 	return Response.json({
 		success: true,
-		hasRefreshToken: !!(existingUser?.google_refresh_token || refresh_token)
+		hasRefreshToken: !!(existingUser?.google_refresh_token || refresh_token),
+		visibleUserId
 	});
 }

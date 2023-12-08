@@ -1,11 +1,11 @@
 import { customAlphabet } from "nanoid";
 
-const generator1 = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 20);
+const generator1 = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 32);
 export function generateId() {
 	return generator1();
 }
 
-const generator2 = customAlphabet("6789bcdfghjkmnpqrtwz", 16);
+const generator2 = customAlphabet("6789bcdfghjkmnpqrtwz", 32);
 export function generateUserFacingId() {
 	return generator2();
 }

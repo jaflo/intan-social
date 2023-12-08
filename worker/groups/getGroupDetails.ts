@@ -105,7 +105,7 @@ export async function getGroupDetails(DB: D1Database, user: UserRow, group: Grou
 			members: groupMembersQuery.results.map((member) => ({
 				id: userIncrementingIdToString[member.user_incrementing_id],
 				name: member.display_name,
-				currentAvailability: isAvailable(
+				available: isAvailable(
 					group,
 					latestTransitionsQuery.results.find(
 						// find matching transition

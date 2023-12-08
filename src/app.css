@@ -5,8 +5,8 @@
 	--font-size: 16px;
 	--pad: 16px;
 	--half-pad: calc(var(--pad) / 2);
-	--foreground-color: #111111;
-	--background-color: #fcfcfc;
+	--foreground-color: #0a090c;
+	--background-color: #f3f3f3;
 	--dim-color: #ebebeb;
 }
 
@@ -55,6 +55,7 @@ h2 {
 	}
 }
 
+.bolded,
 strong,
 h3,
 h4 {
@@ -81,6 +82,12 @@ button {
 	padding: 0.5em 0.8em;
 	border-radius: var(--border-radius, 0.5em);
 	text-decoration: none;
+}
+
+button.simple {
+	border: 0;
+	background: none;
+	border-radius: 0;
 }
 
 textarea,

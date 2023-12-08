@@ -12,9 +12,10 @@ export const POST: RequestHandler = async ({ locals, params }) => {
 		});
 	}
 
-	const { success, message } = await resetShareCode(email, params.shareId);
+	const { success, message, data } = await resetShareCode(email, params.shareId);
 	return json({
 		success,
-		message
+		message,
+		data
 	});
 };

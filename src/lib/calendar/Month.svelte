@@ -58,12 +58,11 @@
 			{#each row as day, i}
 				{#if day}
 					<td
-						style:background={day.color}
-						style:color={i === 0 || i === 6 ? "red" : undefined}
-						style:opacity={day.isPast ? 0.5 : 1}
+						style:background={day.isPast ? "" : day.color}
+						class:weekend={i === 0 || i === 6 ? "red" : undefined}
 					>
 						<div>
-							<span>{day.number}</span>
+							<span style:opacity={day.isPast ? 0.2 : 1}>{day.number}</span>
 						</div>
 					</td>
 				{:else}
@@ -77,8 +76,15 @@
 <style>
 	strong {
 		display: block;
-		text-align: center;
-		padding: calc(100% / 7 / 2 - 1em) 0;
+		line-height: 2;
+		padding-bottom: var(--pad);
+	}
+
+	@media (min-width: 440px) {
+		strong {
+			text-align: center;
+			padding-bottom: 0;
+		}
 	}
 
 	table {
@@ -99,5 +105,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+
+	.weekend {
+		color: #df2935;
 	}
 </style>

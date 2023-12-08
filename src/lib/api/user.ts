@@ -10,6 +10,7 @@ export async function syncUser(params: {
 }) {
 	return POST<{
 		hasRefreshToken: boolean;
+		visibleUserId: string;
 	}>("/sync-user", params);
 }
 

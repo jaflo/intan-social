@@ -29,7 +29,7 @@ function buildAuthHook(authParams: Record<string, string> = {}) {
 				if (account) {
 					const { access_token, refresh_token, expires_at, providerAccountId } = account;
 					const { name, email } = user;
-					const { hasRefreshToken } = await syncUser({
+					const { hasRefreshToken, visibleUserId } = await syncUser({
 						access_token,
 						refresh_token,
 						expires_at,
@@ -38,12 +38,14 @@ function buildAuthHook(authParams: Record<string, string> = {}) {
 						name
 					});
 					token.needsRefreshToken = !hasRefreshToken;
+					token.userId = visibleUserId;
 				}
 				return token;
 			},
 			async session({ session: s, token }) {
 				const session = s as SessionData;
 				session.shouldReauth = !!token.needsRefreshToken;
+				session.userId = token.userId as string;
 				return session;
 			}
 		}

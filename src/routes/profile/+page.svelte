@@ -2,29 +2,73 @@
 	import { signIn, signOut } from "@auth/sveltekit/client";
 	import { page } from "$app/stores";
 	import HeadTagContent from "$lib/components/HeadTagContent.svelte";
+	import ButtonList from "$lib/components/ButtonList.svelte";
+	import {
+		IconBrandGoogle,
+		IconCalendar,
+		IconLogout,
+		IconMapPin,
+		IconReplace
+	} from "@tabler/icons-svelte";
 </script>
 
 <HeadTagContent title="Profile" />
 
-<!-- TODO: view profile, edit home place, sync calkendar, add transitions -->
-
 {#if $page.data.session?.user}
 	<h2>{$page.data.session.user.name ?? "Profile"}</h2>
 
-	<button on:click={() => signOut()} class="button">Log out</button>
+	<ButtonList
+		list={[
+			{
+				label: "Edit location",
+				action: () => {
+					// TODO: edit home location
+				},
+				primaryIcon: IconMapPin
+			},
+			{
+				label: "Re-sync calendar",
+				action: () => {
+					// TODO: sync calendar
+				},
+				primaryIcon: IconCalendar
+			},
+			{
+				label: "Log out",
+				action: () => {
+					signOut();
+				},
+				primaryIcon: IconLogout
+			}
+		]}
+	/>
 
 	<pre>{JSON.stringify($page.data.session, null, 2)}</pre>
 {:else}
 	<h2>Profile</h2>
 
-	You are not logged in
-	<button on:click={() => signIn("google")}>Log in with Google</button>
-	<button
-		on:click={() =>
-			signIn("google", undefined, {
-				reauth: "yes"
-			})}>Use a different account</button
-	>
+	<p>You are not logged in. Log in with your Google account to share your travel plans.</p>
+
+	<ButtonList
+		list={[
+			{
+				label: "Log in with Google",
+				action: () => {
+					signIn("google");
+				},
+				primaryIcon: IconBrandGoogle
+			},
+			{
+				label: "Use a different account",
+				action: () => {
+					signIn("google", undefined, {
+						reauth: "yes"
+					});
+				},
+				primaryIcon: IconReplace
+			}
+		]}
+	/>
 {/if}
 
 <style>
