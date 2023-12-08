@@ -15,7 +15,8 @@
 		"test:integration": "playwright test",
 		"test:unit": "vitest",
 		"wrangler:deploy": "wrangler deploy",
-		"wrangler:dev": "wrangler dev"
+		"wrangler:dev": "wrangler dev",
+		"wrangler:reset": "wrangler d1 execute intan-prod --local --file=./worker/schema.sql"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20231025.0",
